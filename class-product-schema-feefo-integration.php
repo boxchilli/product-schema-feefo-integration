@@ -71,9 +71,11 @@ class Product_Schema_Feefo_Integration {
      * @return object The response
      */
     function get_feefo_response( $url = '', $options = array() ) {
+
+        $url .= '?merchant_identifier=' . $this->merchant_identifier;
         $response = wp_remote_get( $url, $options );
 
-        return json_decode( $wp_response['body'] );
+        return json_decode( $response['body'] );
     }
 
     /**
@@ -85,7 +87,7 @@ class Product_Schema_Feefo_Integration {
         $response = $this->get_feefo_response( $url );
 
         $summary_product_rating = $response->rating->rating;
-        $summary_product_rating_count = $response->rating->service->count;
+        $summary_product_rating_count = $response->rating->product->count;
 
         update_option( $this->get_option_name( 'summary_product_rating' ), $summary_product_rating );
         update_option( $this->get_option_name( 'summary_product_rating_count' ), $summary_product_rating_count );
@@ -101,7 +103,7 @@ class Product_Schema_Feefo_Integration {
 
         $reviews = array();
 
-        if ( ! isset( $response->reviews ) ) {
+        if ( isset( $response->reviews ) ) {
             foreach ( $response->reviews as $review ) {
 
                 $_review = array();
